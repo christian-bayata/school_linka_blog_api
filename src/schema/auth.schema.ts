@@ -1,15 +1,7 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-  HasMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
 
-@Table({ schema: 'linka_workspace', tableName: 'Responses' })
+@Table({ schema: 'linka_workspace', tableName: 'Users' })
 export class User extends Model<User> {
   @Column({
     type: DataType.STRING,
@@ -42,22 +34,10 @@ export class User extends Model<User> {
   role: string;
 
   @Column({
-    type: DataType.STRING,
-    defaultValue: 'Africa/Lagos',
-  })
-  timzezone: string;
-
-  @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
   verified: string;
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  scheduleForLater: string;
 
   @Column({
     type: DataType.STRING,
