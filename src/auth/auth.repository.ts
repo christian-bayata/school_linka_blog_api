@@ -31,4 +31,26 @@ export class AuthRepository {
   async createUser(data: any): Promise<Partial<User>> {
     return await this.user.create(data);
   }
+
+  /**
+   * @Responsibility: Repo for updating a user
+   *
+   * @param where
+   * @returns {Promise<Survey | null>}
+   */
+
+  async updateUser(where: any, data: any): Promise<any> {
+    return await this.user.update(data, { where });
+  }
+
+  /**
+   * @Responsibility: Repo for retrieving verification id
+   *
+   * @param where
+   * @returns {Promise<Survey | null>}
+   */
+
+  async findVerId(where: PropDataInput): Promise<any> {
+    return await this.authorize.findOne({ where });
+  }
 }

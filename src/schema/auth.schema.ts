@@ -1,3 +1,4 @@
+import { String } from 'lodash';
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
 
@@ -7,13 +8,13 @@ export class User extends Model<User> {
     type: DataType.STRING,
     allowNull: false,
   })
-  first_name: JSON;
+  first_name: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  last_name: JSON;
+  last_name: string;
 
   @Column({
     type: DataType.STRING,
