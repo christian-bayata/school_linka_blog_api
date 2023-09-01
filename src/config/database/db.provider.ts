@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { SEQUELIZE, DEVELOPMENT, STAGING } from 'src/common/constant';
 import { databaseConfig } from './db.config';
 import { User } from 'src/schema/auth.schema';
+import { Authorize } from 'src/schema/authorize.schema';
 
 export const databaseProviders = [
   {
@@ -20,7 +21,7 @@ export const databaseProviders = [
       }
 
       const sequelize = new Sequelize(config, { dialect: 'postgres' });
-      sequelize.addModels([User]);
+      sequelize.addModels([User, Authorize]);
 
       /* Connect to postgres database */
       await sequelize

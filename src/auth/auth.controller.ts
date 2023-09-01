@@ -3,6 +3,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
+import { VerificationDto } from './dto/verification.dto';
 
 @Controller('linka-blog')
 export class AuthController {
@@ -33,9 +34,9 @@ export class AuthController {
   }
 
   @Post('/verify')
-  async verification(@Req() req: any, @Res() res: Response, @Body() id: string): Promise<any> {
+  async verification(@Req() req: any, @Res() res: Response, @Body() verificationDto: VerificationDto): Promise<any> {
     return await this.authService
-      .verification(id)
+      .verification(verificationDto)
       .then((resp) => {
         res.status(200).json({ message: 'Successfully verified user', data: resp });
       })

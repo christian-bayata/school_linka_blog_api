@@ -1,11 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PropDataInput } from 'src/common/interface';
 import { User } from 'src/schema/auth.schema';
-import { USER_REPOSITORY } from 'src/common/constant';
+import { USER_REPOSITORY, AUTHORIZE_REPOSITORY, SEQUELIZE } from 'src/common/constant';
+import { Authorize } from 'src/schema/authorize.schema';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class AuthRepository {
-  constructor(@Inject(USER_REPOSITORY) private readonly user: typeof User) {}
+  constructor(
+    @Inject(USER_REPOSITORY) private readonly user: typeof User,
+    @Inject(AUTHORIZE_REPOSITORY) private readonly authorize: typeof Authorize,
+    @Inject(SEQUELIZE) private sequelize: Sequelize,
+  ) {}
 
   /**
    * @Responsibility: Repo to retrieve user detail
@@ -14,7 +20,7 @@ export class AuthRepository {
    * @returns {Promise<User | void>}
    */
 
-  async findUser(where: PropDataInput, attributes: string[]): Promise<Partial<User>> {
+  async findUser(where: PropDataInput, attributes?: string[]): Promise<Partial<User>> {
     return await this.user.findOne({
       where,
       attributes,
@@ -50,7 +56,27 @@ export class AuthRepository {
    * @returns {Promise<Survey | null>}
    */
 
-  async findVerId(where: PropDataInput): Promise<any> {
-    return await this.authorize.findOne({ where });
+  async findVerId(where: PropDataInput, attributes): Promise<Authorize> {
+    return await this.authorize.findOne({ where, attributes });
+  }
+
+  /**
+   * @Responsibility: Repo for verifying a user and deleting the verification id
+   *
+   * @param where
+   * @returns {Promise<Survey | null>}
+   */
+
+  async verifyUserDeleteVerId(data: any): Promise<any> {
+    try {
+      return this.sequelize.transaction(async (t: any) => {
+        await Promise.all([
+          this.user.update({ verified: true }, { where: { email: data.email }, transaction: t }),
+          this.authorize.destroy({ where: { ver_id: data.id }, transaction: t }),
+        ]);
+      });
+    } catch (error) {
+      return { error };
+    }
   }
 }

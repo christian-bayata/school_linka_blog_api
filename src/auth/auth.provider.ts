@@ -1,12 +1,17 @@
 import { User } from 'src/schema/auth.schema';
 import { Sequelize } from 'sequelize-typescript';
-import { USER_REPOSITORY, SEQUELIZE_INSTANCE } from 'src/common/constant';
+import { USER_REPOSITORY, SEQUELIZE_INSTANCE, AUTHORIZE_REPOSITORY } from 'src/common/constant';
+import { Authorize } from 'src/schema/authorize.schema';
 
 /* This provider will be used to communicate with the database */
 export const authProvider = [
   {
     provide: USER_REPOSITORY,
     useValue: User,
+  },
+  {
+    provide: AUTHORIZE_REPOSITORY,
+    useValue: Authorize,
   },
 ];
 

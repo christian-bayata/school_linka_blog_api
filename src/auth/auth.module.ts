@@ -7,10 +7,12 @@ import { AuthController } from './auth.controller';
 import { authProvider, sequelizeInstanceProvider } from './auth.provider';
 import { AuthUtility } from './auth.utility';
 import { JwtModule } from '@nestjs/jwt';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    EmailModule,
     ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -38,7 +38,7 @@ export class User extends Model<User> {
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
-  verified: string;
+  verified: boolean;
 
   @Column({
     type: DataType.STRING,

@@ -10,7 +10,7 @@ export class Authorize extends Model<Authorize> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   ver_id: string;
 
