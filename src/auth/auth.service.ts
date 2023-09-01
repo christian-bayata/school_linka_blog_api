@@ -9,6 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 import { VerificationDto } from './dto/verification.dto';
 import { EmailService } from 'src/email/email.service';
 import { EmailData } from 'src/email/email.interface';
+import { verificationText } from 'src/email/templates/verification-text.template';
+import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
+import { forgotPasswordText } from 'src/email/templates/forgot-password-text.template';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +21,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly authUtility: AuthUtility,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   private readonly ISE: string = 'Internal Server Error';
@@ -24,15 +29,14 @@ export class AuthService {
   /**
    * @Responsibility: dedicated service for signing up a new user
    *
-   * @param createSurveyDto
+   * @param signUpDto
    * @returns {Promise<any>}
    */
 
-  async signUp(signUpDto: SignUpDto): Promise<any> {
+  async signUp(signUpDto: SignUpDto, protocol: string): Promise<any> {
     try {
       let { first_name, last_name, email, password } = signUpDto;
-
-      const checkEmail = await this.authUtility.getPlainData(await this.authRepository.findUser({ email }, ['email']));
+      const checkEmail = await this.authRepository.findUser({ email }, ['email']);
       if (checkEmail) throw new HttpException('Email already exists', HttpStatus.CONFLICT);
 
       /* Hash password before storing it */
@@ -50,19 +54,32 @@ export class AuthService {
       const new_user = await this.authRepository.createUser(signupData());
       const __user = _.pick(new_user, ['id', 'first_name', 'last_name', 'email']);
 
-      /* Send a verification id to user email */
+      const __ver_id = uuidv4();
+      const verification_link = `${protocol}://${this.configService.get<string>('BASE_URL')}/verify?ver_id=${__ver_id}`;
+
+      /* Send a verification link to user email */
       function emailDispatcher(): EmailData {
         return {
-          to: `${this.configService.get('SMTP_HOST')}`,
-          from: 'Mooyi <noreply@mooyi.africa>',
-          subject: 'Target responses have been reached',
-          text: ,
+          to: email,
+          from: 'Linka <noreply@linka.africa>',
+          subject: 'Verify New User',
+          text: verificationText(first_name, verification_link),
         };
       }
-      await this.emailService.emailSender();
+      await this.emailService.emailSender(emailDispatcher());
+
+      /* Create a record of the verification */
+      function verIdData() {
+        return {
+          email,
+          ver_id: __ver_id,
+        };
+      }
+      await this.authRepository.createVerId(verIdData());
 
       return __user;
     } catch (error) {
+      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -76,25 +93,27 @@ export class AuthService {
 
   async verification(verificationDto: VerificationDto): Promise<any> {
     try {
-      const { email, id } = verificationDto;
+      const { email, ver_id } = verificationDto;
 
-      const __user = await this.authUtility.getPlainData(await this.authRepository.findUser({ email }, ['verify']));
+      const __user = await this.authRepository.findUser({ email }, ['verified']);
       if (!__user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
-      if (__user.verify) throw new HttpException('User has already been verified', HttpStatus.BAD_REQUEST);
+      if (__user?.verified) throw new HttpException('User has already been verified', HttpStatus.BAD_REQUEST);
 
-      const findId = await this.authUtility.getPlainData(await this.authRepository.findVerId({ ver_id: id }, ['email', 'ver_id']));
+      const findId = await this.authRepository.findVerId({ ver_id }, ['email', 'ver_id']);
       if (!findId) throw new HttpException('Invalid verifification id', HttpStatus.BAD_REQUEST);
 
       function verData() {
         return {
-          id,
+          ver_id,
           email,
         };
       }
-      const { error } = await this.authRepository.verifyUserDeleteVerId(verData());
-      if (error) throw new HttpException('Could not implement transaction', HttpStatus.NOT_IMPLEMENTED);
+
+      await this.authRepository.verifyUserDeleteVerId(verData());
+      return {};
     } catch (error) {
+      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -110,20 +129,20 @@ export class AuthService {
     try {
       let { email, password } = loginDto;
 
-      const findUser = await this.authUtility.getPlainData(await this.authRepository.findUser({ email }, ['id', 'email', 'password', 'role']));
-      if (!findUser) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      const theUser = await this.authUtility.getPlainData(await this.authRepository.findUser({ email }, ['id', 'email', 'password', 'role']));
+      if (!theUser) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
       /* validate user password with bcrypt */
-      const validPassword = compareSync(password, findUser.password);
+      const validPassword = compareSync(password, theUser.password);
       if (!validPassword) throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
 
-      await this.authRepository.updateUser({ id: findUser.id }, { lastLoggedIn: new Date(Date.now()), loginCount: +1 });
+      await this.authRepository.updateUser({ id: theUser.id }, { lastLoggedIn: new Date(Date.now()), loginCount: +1 });
 
       /* Generate jwt token */
       function jwtPayload() {
         return {
-          user_id: findUser.id,
-          role: findUser.role,
+          user_id: theUser.id,
+          role: theUser.role,
         };
       }
 
@@ -132,6 +151,38 @@ export class AuthService {
     } catch (error) {
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
+  }
+
+  /**
+   * @Responsibility: dedicated service for forget password
+   *
+   * @param email
+   * @returns {Promise<any>}
+   */
+
+  async forgotPassword(email: string): Promise<any> {
+    const __user = await this.authRepository.findUser({ email });
+    if (!__user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    const code = this.authUtility.generateCode();
+
+    /* Send code to user email */
+    function emailDispatcher(): EmailData {
+      return {
+        to: email,
+        from: 'Linka <noreply@linka.africa>',
+        subject: 'Forgot Password',
+        text: forgotPasswordText(code),
+      };
+    }
+    await this.emailService.emailSender(emailDispatcher());
+
+    /* Create a record of the password code */
+    function forgotPasswordData() {
+      return { email, code };
+    }
+
+    await this.authRepository.createVerId(forgotPasswordData());
   }
 
   /*****************************************************************************************************************************

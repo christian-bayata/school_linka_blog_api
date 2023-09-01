@@ -14,5 +14,11 @@ export class Authorize extends Model<Authorize> {
   })
   ver_id: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  code: string;
+
   /************************************* Relations *******************************************/
 }

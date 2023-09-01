@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseFilters } from '@nestjs/common';
+import { Body, Controller, Post, Query, Req, Res, UseFilters } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
@@ -11,8 +11,9 @@ export class AuthController {
 
   @Post('/sign-up')
   async signUp(@Req() req: any, @Res() res: Response, @Body() signUpDto: SignUpDto): Promise<any> {
+    const protocol = req.protocol;
     return await this.authService
-      .signUp(signUpDto)
+      .signUp(signUpDto, protocol)
       .then((resp) => {
         res.status(201).json({ message: 'Successfully signed up', data: resp });
       })
@@ -34,9 +35,27 @@ export class AuthController {
   }
 
   @Post('/verify')
-  async verification(@Req() req: any, @Res() res: Response, @Body() verificationDto: VerificationDto): Promise<any> {
+  async verification(@Req() req: any, @Res() res: Response, @Query('ver_id') ver_id: string, @Body('email') email: string): Promise<any> {
+    function payload(): VerificationDto {
+      return {
+        ver_id,
+        email,
+      };
+    }
     return await this.authService
-      .verification(verificationDto)
+      .verification(payload())
+      .then((resp) => {
+        res.status(200).json({ message: 'Successfully verified user', data: resp });
+      })
+      .catch((error: any) => {
+        throw error;
+      });
+  }
+
+  @Post('/forgot-password')
+  async forgotPassword(@Req() req: any, @Res() res: Response, @Body('email') email: string): Promise<any> {
+    return await this.authService
+      .forgotPassword(email)
       .then((resp) => {
         res.status(200).json({ message: 'Successfully verified user', data: resp });
       })

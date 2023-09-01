@@ -72,11 +72,22 @@ export class AuthRepository {
       return this.sequelize.transaction(async (t: any) => {
         await Promise.all([
           this.user.update({ verified: true }, { where: { email: data.email }, transaction: t }),
-          this.authorize.destroy({ where: { ver_id: data.id }, transaction: t }),
+          this.authorize.destroy({ where: { ver_id: data.ver_id }, transaction: t }),
         ]);
       });
     } catch (error) {
       return { error };
     }
+  }
+
+  /**
+   * @Responsibility: Repo to create a new user
+   *
+   * @param data
+   * @returns {Promise<User | void>}
+   */
+
+  async createVerId(data: any): Promise<Partial<Authorize>> {
+    return await this.authorize.create(data);
   }
 }

@@ -1,4 +1,4 @@
 export class VerificationDto {
-  readonly id: string;
+  readonly ver_id: string;
   readonly email: string;
 }
