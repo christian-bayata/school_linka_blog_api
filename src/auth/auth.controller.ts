@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { VerificationDto } from './dto/verification.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('linka-blog')
 export class AuthController {
@@ -23,7 +24,7 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(@Req() req: any, @Res() res: Response, @Body() loginDto: LoginDto): Promise<any> {
+  async login(@Res() res: Response, @Body() loginDto: LoginDto): Promise<any> {
     return await this.authService
       .login(loginDto)
       .then((resp) => {
@@ -35,7 +36,7 @@ export class AuthController {
   }
 
   @Post('/verify')
-  async verification(@Req() req: any, @Res() res: Response, @Query('ver_id') ver_id: string, @Body('email') email: string): Promise<any> {
+  async verification(@Res() res: Response, @Query('ver_id') ver_id: string, @Body('email') email: string): Promise<any> {
     function payload(): VerificationDto {
       return {
         ver_id,
@@ -53,11 +54,23 @@ export class AuthController {
   }
 
   @Post('/forgot-password')
-  async forgotPassword(@Req() req: any, @Res() res: Response, @Body('email') email: string): Promise<any> {
+  async forgotPassword(@Res() res: Response, @Body('email') email: string): Promise<any> {
     return await this.authService
       .forgotPassword(email)
       .then((resp) => {
-        res.status(200).json({ message: 'Successfully verified user', data: resp });
+        res.status(200).json({ message: 'Password reset token successfully sent', data: resp });
+      })
+      .catch((error: any) => {
+        throw error;
+      });
+  }
+
+  @Post('/reset-password')
+  async resetPassword(@Res() res: Response, @Body() resetPasswordDto: ResetPasswordDto): Promise<any> {
+    return await this.authService
+      .resetPassword(resetPasswordDto)
+      .then((resp) => {
+        res.status(200).json({ message: 'Password successfully reset', data: resp });
       })
       .catch((error: any) => {
         throw error;

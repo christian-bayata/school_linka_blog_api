@@ -17,7 +17,7 @@ export class AuthRepository {
    * @Responsibility: Repo to retrieve user detail
    *
    * @param where
-   * @returns {Promise<User | void>}
+   * @returns {Promise<User>}
    */
 
   async findUser(where: PropDataInput, attributes?: string[]): Promise<Partial<User>> {
@@ -31,7 +31,7 @@ export class AuthRepository {
    * @Responsibility: Repo to create a new user
    *
    * @param data
-   * @returns {Promise<User | void>}
+   * @returns {Promise<Partial<User>>}
    */
 
   async createUser(data: any): Promise<Partial<User>> {
@@ -42,7 +42,7 @@ export class AuthRepository {
    * @Responsibility: Repo for updating a user
    *
    * @param where
-   * @returns {Promise<Survey | null>}
+   * @returns {Promise<any>}
    */
 
   async updateUser(where: any, data: any): Promise<any> {
@@ -53,18 +53,30 @@ export class AuthRepository {
    * @Responsibility: Repo for retrieving verification id
    *
    * @param where
-   * @returns {Promise<Survey | null>}
+   * @param attributes
+   * @returns {Promise<Authorize>}
    */
 
-  async findVerId(where: PropDataInput, attributes): Promise<Authorize> {
+  async findAuthorize(where: PropDataInput, attributes: string[]): Promise<Authorize> {
     return await this.authorize.findOne({ where, attributes });
+  }
+
+  /**
+   * @Responsibility: Repo for retrieving verification id
+   *
+   * @param where
+   * @returns {Promise<Authorize>}
+   */
+
+  async deleteAuthorize(where: PropDataInput): Promise<any> {
+    return await this.authorize.destroy({ where });
   }
 
   /**
    * @Responsibility: Repo for verifying a user and deleting the verification id
    *
-   * @param where
-   * @returns {Promise<Survey | null>}
+   * @param data
+   * @returns {Promise<any>}
    */
 
   async verifyUserDeleteVerId(data: any): Promise<any> {
@@ -84,7 +96,7 @@ export class AuthRepository {
    * @Responsibility: Repo to create a new user
    *
    * @param data
-   * @returns {Promise<User | void>}
+   * @returns {Promise<Partial<Authorize>>}
    */
 
   async createVerId(data: any): Promise<Partial<Authorize>> {
