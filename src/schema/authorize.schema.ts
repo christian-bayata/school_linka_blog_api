@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({ schema: 'linka_workspace', tableName: 'Authorizes' })
 export class Authorize extends Model<Authorize> {
@@ -19,6 +19,4 @@ export class Authorize extends Model<Authorize> {
     allowNull: true,
   })
   code: string;
-
-  /************************************* Relations *******************************************/
 }

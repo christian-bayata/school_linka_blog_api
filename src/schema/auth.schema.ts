@@ -1,6 +1,7 @@
 import { String } from 'lodash';
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
+import { Blog } from './blog.schema';
 
 @Table({ schema: 'linka_workspace', tableName: 'Users' })
 export class User extends Model<User> {
@@ -58,4 +59,6 @@ export class User extends Model<User> {
   lastLoggedIn: Date;
 
   /************************************* Relations *******************************************/
+  @HasMany(() => Blog)
+  posts: Blog[];
 }

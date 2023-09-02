@@ -8,7 +8,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JoiValidationPipe } from 'src/pipes/validation.pipe';
 import { forgotPasswordSchema, loginSchema, resetPasswordSchema, signUpSchema, verificationSchema } from './auth.validation';
 
-@Controller('linka-blog')
+@Controller('linka-blog/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

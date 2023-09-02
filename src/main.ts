@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 // import { AllExceptionsFilter } from './exceptions/http-exception';
 import { HttpExceptionFilter } from './exceptions/http-exception';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function bootstrap() {
   const logger = new Logger('Main');
