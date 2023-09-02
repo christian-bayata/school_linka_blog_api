@@ -232,8 +232,7 @@ export class AuthService {
           role: __user?.role,
         };
       }
-
-      const token = this.jwtService.sign(jwtPayload());
+      this.jwtService.sign(jwtPayload());
 
       return {};
     } catch (error) {
