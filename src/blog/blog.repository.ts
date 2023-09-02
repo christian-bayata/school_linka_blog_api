@@ -14,7 +14,7 @@ export class BlogRepository {
    * @Responsibility: Repo to retrieve blog details
    *
    * @param where
-   * @returns {Promise<Blog>}
+   * @returns {Promise<Partial<Blog>>}
    */
 
   async findBlogPost(where: PropDataInput, attributes?: string[]): Promise<Partial<Blog>> {
@@ -28,7 +28,7 @@ export class BlogRepository {
    * @Responsibility: Repo to create a new blog post
    *
    * @param data
-   * @returns {Promise<Partial<User>>}
+   * @returns {Promise<Partial<Blog>>}
    */
 
   async createBlogPost(data: any): Promise<Partial<Blog>> {
@@ -36,16 +36,15 @@ export class BlogRepository {
   }
 
   /**
-   * @Responsibility: Repo to create a new blog post
+   * @Responsibility: Repo to retrieve all blog posts
    *
    * @param data
-   * @returns {Promise<Partial<User>>}
+   * @returns {Promise<Partial<Blog[]> | any>}
    */
 
   async findAllPosts(data?: FetchPostsDto): Promise<Partial<Blog[]> | any> {
     const defaultPageAndLimit = { page: 1, limit: 10 };
     const { page, limit, search } = data;
-    console.log('Data*****: ', data);
 
     const query: AdditionalQuery = { order: [['createdAt', 'DESC']] };
 
@@ -64,5 +63,16 @@ export class BlogRepository {
     const count = await this.blog.count();
 
     return { posts, count };
+  }
+
+  /**
+   * @Responsibility: Repo to update a blog post
+   *
+   * @param data
+   * @returns {Promise<any>}
+   */
+
+  async updateBlogPost(data: any, where: any): Promise<any> {
+    return await this.blog.update(data, { where });
   }
 }

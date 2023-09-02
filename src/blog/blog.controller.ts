@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Request, Response } from 'express';
 import { BlogService } from './blog.service';
@@ -7,6 +7,7 @@ import { RoleGuard } from 'src/guards/roles.guard';
 import { Role } from 'src/common/enums/role.enum';
 import { Roles } from 'src/guards/decorators/roles.decorator';
 import { FetchPostsDto } from './dto/fetch-posts.dto';
+import { EditPostDto } from './dto/edit-post.dto';
 
 @Controller('linka-blog/post')
 export class BlogController {
@@ -35,7 +36,7 @@ export class BlogController {
     return await this.blogService
       .fetchSinglePost(post_id)
       .then((resp) => {
-        res.status(201).json({ message: 'Successfully retrieved blog post', data: resp });
+        res.status(200).json({ message: 'Successfully retrieved blog post', data: resp });
       })
       .catch((e: any) => {
         throw new HttpException(e.message, e.status);
@@ -62,7 +63,24 @@ export class BlogController {
     return await this.blogService
       .fetchAllPosts(payload())
       .then((resp) => {
-        res.status(201).json({ message: 'Successfully retrieved posts in batches', data: resp });
+        res.status(200).json({ message: 'Successfully retrieved posts in batches', data: resp });
+      })
+      .catch((e: any) => {
+        throw new HttpException(e.message, e.status);
+      });
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Patch('/edit')
+  @Roles(Role.RWX_USER)
+  async editPost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number, @Body() editPostDto: EditPostDto): Promise<any> {
+    editPostDto.post_id = post_id;
+    editPostDto.creator = req.user.user_id;
+
+    return await this.blogService
+      .editPost(editPostDto)
+      .then((resp) => {
+        res.status(200).json({ message: 'Successfully edited blog post', data: resp });
       })
       .catch((e: any) => {
         throw new HttpException(e.message, e.status);
