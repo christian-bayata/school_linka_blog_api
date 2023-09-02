@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { BlogRepository } from './blog.repository';
+import { FetchPostDto } from './dto/fetch-post.dto';
 
 @Injectable()
 export class BlogService {
@@ -9,9 +10,9 @@ export class BlogService {
   private readonly ISE: string = 'Internal Server Error';
 
   /**
-   * @Responsibility: dedicated service for drafting a blog post
+   * @Responsibility: dedicated service for creating a blog post
    *
-   * @param draftPostDto
+   * @param createPostDto
    * @returns {Promise<any>}
    */
 
@@ -30,25 +31,23 @@ export class BlogService {
     }
   }
 
-  // /**
-  //  * @Responsibility: dedicated service for drafting a blog post
-  //  *
-  //  * @param releasePostDto
-  //  * @returns {Promise<any>}
-  //  */
+  /**
+   * @Responsibility: dedicated service for retrieving a single blog post
+   *
+   * @param releasePostDto
+   * @returns {Promise<any>}
+   */
 
-  // async releasePost(releasePostDto: ReleasePostDto): Promise<any> {
-  //   try {
-  //     const { post_id, title, creator, status, content } = releasePostDto;
+  async fetchSinglePost(fetchPostDto: FetchPostDto): Promise<any> {
+    try {
+      const { post_id } = fetchPostDto;
 
-  //     const _thePost = await this.blogRepository.findBlogPost({ id: post_id });
-  //     if (_thePost) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      const _thePost = await this.blogRepository.findBlogPost({ id: post_id });
+      if (_thePost) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
 
-  //     function releaseData() {
-  //       title, creator, status, content;
-  //     }
-  //   } catch (error) {
-  //     throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
-  //   }
-  // }
+      return _thePost;
+    } catch (error) {
+      throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
+    }
+  }
 }

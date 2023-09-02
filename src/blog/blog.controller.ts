@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpException, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Request, Response } from 'express';
 import { BlogService } from './blog.service';
@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/guards/jwt/jtw.guard';
 import { RoleGuard } from 'src/guards/roles.guard';
 import { Role } from 'src/common/enums/role.enum';
 import { Roles } from 'src/guards/decorators/roles.decorator';
+import { FetchPostDto } from './dto/fetch-post.dto';
 
 @Controller('linka-blog/post')
 export class BlogController {
@@ -21,6 +22,23 @@ export class BlogController {
       .createPost(createPostDto)
       .then((resp) => {
         res.status(201).json({ message: 'Successfully drafted blog post', data: resp });
+      })
+      .catch((e: any) => {
+        throw new HttpException(e.message, e.status);
+      });
+  }
+
+  async fetchSinglePost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number): Promise<any> {
+    function payload(): FetchPostDto {
+      return {
+        creator: req.user.user_id,
+        post_id,
+      };
+    }
+    return await this.blogService
+      .fetchSinglePost(payload())
+      .then((resp) => {
+        res.status(201).json({ message: 'Successfully retrieved blog post', data: resp });
       })
       .catch((e: any) => {
         throw new HttpException(e.message, e.status);
