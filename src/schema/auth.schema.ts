@@ -1,27 +1,33 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-  HasMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, Index } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
 
-@Table({ schema: 'linka_workspace', tableName: 'Responses' })
+/* Dedicated function for adding index to the Users table */
+export function IndexedTable(indexFields: string[], indexName: string, isUnique: boolean = false) {
+  return (target: any) => {
+    Table(target);
+    target.prototype.indexes = [
+      {
+        name: indexName,
+        unique: isUnique,
+        fields: indexFields,
+      },
+    ];
+  };
+}
+@IndexedTable(['id', 'email'], 'users_index', true)
+@Table({ schema: 'linka_workspace', tableName: 'Users' })
 export class User extends Model<User> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  first_name: JSON;
+  first_name: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  last_name: JSON;
+  last_name: string;
 
   @Column({
     type: DataType.STRING,
@@ -42,22 +48,10 @@ export class User extends Model<User> {
   role: string;
 
   @Column({
-    type: DataType.STRING,
-    defaultValue: 'Africa/Lagos',
-  })
-  timzezone: string;
-
-  @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
-  verified: string;
-
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  scheduleForLater: string;
+  verified: boolean;
 
   @Column({
     type: DataType.STRING,
