@@ -17,26 +17,10 @@ export class Blog extends Model<Blog> {
   creator: number;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  status: string;
-
-  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   content: string;
-
-  @Column({
-    type: DataType.DATE,
-  })
-  draftedAt: Date;
-
-  @Column({
-    type: DataType.DATE,
-  })
-  releaseDate: Date;
 
   /************************************* Relations *******************************************/
   @BelongsTo(() => User)

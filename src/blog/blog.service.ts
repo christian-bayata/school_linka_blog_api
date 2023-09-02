@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { BlogRepository } from './blog.repository';
-import { FetchPostDto } from './dto/fetch-post.dto';
+import { FetchPostsDto } from './dto/fetch-posts.dto';
 
 @Injectable()
 export class BlogService {
@@ -34,19 +34,39 @@ export class BlogService {
   /**
    * @Responsibility: dedicated service for retrieving a single blog post
    *
-   * @param releasePostDto
+   * @param post_id
    * @returns {Promise<any>}
    */
 
-  async fetchSinglePost(fetchPostDto: FetchPostDto): Promise<any> {
+  async fetchSinglePost(post_id: number): Promise<any> {
     try {
-      const { post_id } = fetchPostDto;
-
-      const _thePost = await this.blogRepository.findBlogPost({ id: post_id });
-      if (_thePost) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      const _thePost = await this.blogRepository.findBlogPost({ id: +post_id });
+      if (!_thePost) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
 
       return _thePost;
     } catch (error) {
+      // console.log(error);
+      throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
+    }
+  }
+
+  /**
+   * @Responsibility: dedicated service for retrieving all blog posts
+   * @param fetchPostsDto
+   * @returns {Promise<any>}
+   */
+
+  async fetchAllPosts(fetchPostsDto: FetchPostsDto): Promise<any> {
+    try {
+      const { page, limit, search } = fetchPostsDto;
+
+      function allPostsData() {
+        return { page: +page, limit: +limit, search };
+      }
+      const { posts, count } = await this.blogRepository.findAllPosts(allPostsData());
+      return { posts, count };
+    } catch (error) {
+      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
