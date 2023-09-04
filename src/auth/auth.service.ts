@@ -232,12 +232,11 @@ export class AuthService {
           role: __user?.role,
         };
       }
-
-      const token = this.jwtService.sign(jwtPayload());
+      this.jwtService.sign(jwtPayload());
 
       return {};
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }

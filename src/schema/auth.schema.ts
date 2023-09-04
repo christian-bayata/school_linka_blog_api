@@ -1,8 +1,21 @@
-import { String } from 'lodash';
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, Index } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
 import { Blog } from './blog.schema';
 
+/* Dedicated function for adding index to the Users table */
+export function IndexedTable(indexFields: string[], indexName: string, isUnique: boolean = false) {
+  return (target: any) => {
+    Table(target);
+    target.prototype.indexes = [
+      {
+        name: indexName,
+        unique: isUnique,
+        fields: indexFields,
+      },
+    ];
+  };
+}
+@IndexedTable(['id', 'email'], 'users_index', true)
 @Table({ schema: 'linka_workspace', tableName: 'Users' })
 export class User extends Model<User> {
   @Column({
