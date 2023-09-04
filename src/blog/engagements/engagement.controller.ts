@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpException, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, HttpException, Post, Query, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { Role } from 'src/common/enums/role.enum';
 import { Roles } from 'src/guards/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/guards/jwt/jtw.guard';
@@ -6,6 +6,8 @@ import { RoleGuard } from 'src/guards/roles.guard';
 import { CreateEngagementDto, DeleteEngagementDto } from '../dto/create-post.dto';
 import { EngagementService } from './engagement.service';
 import { Response } from 'express';
+import { JoiValidationPipe } from 'src/pipes/validation.pipe';
+import { createEngagementSchema } from '../blog.validation';
 
 @Controller('linka-blog/engagement')
 export class EngagementController {
@@ -14,7 +16,7 @@ export class EngagementController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/create')
   @Roles(Role.RWX_USER, Role.RW_USER, Role.R_USER)
-  //@UsePipes(new JoiValidationPipe(signUpSchema))
+  @UsePipes(new JoiValidationPipe(createEngagementSchema))
   async createEngagement(@Req() req: any, @Res() res: Response, @Body() createEngagementDto: CreateEngagementDto): Promise<any> {
     createEngagementDto.engager = req.user.user_id;
     return await this.engagementService
@@ -30,7 +32,6 @@ export class EngagementController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/delete')
   @Roles(Role.RWX_USER)
-  //@UsePipes(new JoiValidationPipe(signUpSchema))
   async deleteEngagement(@Req() req: any, @Res() res: Response, @Body() deleteEngagementDto: DeleteEngagementDto): Promise<any> {
     deleteEngagementDto.engager = req.user.user_id;
     return await this.engagementService

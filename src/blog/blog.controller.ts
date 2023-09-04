@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Patch, Post, Query, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Request, Response } from 'express';
 import { BlogService } from './blog.service';
@@ -8,6 +8,8 @@ import { Role } from 'src/common/enums/role.enum';
 import { Roles } from 'src/guards/decorators/roles.decorator';
 import { FetchPostsDto } from './dto/fetch-posts.dto';
 import { EditPostDto } from './dto/edit-post.dto';
+import { JoiValidationPipe } from 'src/pipes/validation.pipe';
+import { createPostSchema, editPostSchema } from './blog.validation';
 
 @Controller('linka-blog/post')
 export class BlogController {
@@ -16,7 +18,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/create')
   @Roles(Role.RWX_USER)
-  //@UsePipes(new JoiValidationPipe(signUpSchema))
+  @UsePipes(new JoiValidationPipe(createPostSchema))
   async createPost(@Req() req: any, @Res() res: Response, @Body() createPostDto: CreatePostDto): Promise<any> {
     createPostDto.creator = req.user.user_id;
     return await this.blogService
@@ -73,6 +75,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Patch('/edit')
   @Roles(Role.RWX_USER)
+  @UsePipes(new JoiValidationPipe(editPostSchema))
   async editPost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number, @Body() editPostDto: EditPostDto): Promise<any> {
     editPostDto.post_id = post_id;
     editPostDto.creator = req.user.user_id;
