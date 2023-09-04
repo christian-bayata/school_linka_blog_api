@@ -8,9 +8,11 @@ import { BlogController } from './blog.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/guards/jwt/jwt.strategy';
+import { EngagementController } from './engagements/engagement.controller';
+import { EngagementService } from './engagements/engagement.service';
 
 @Module({
-  controllers: [BlogController],
+  controllers: [BlogController, EngagementController],
   imports: [
     ConfigModule,
     AuthModule,
@@ -22,7 +24,7 @@ import { JwtStrategy } from 'src/guards/jwt/jwt.strategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [BlogService, BlogRepository, ...blogProvider, ...sequelizeInstanceProvider, JwtStrategy],
+  providers: [BlogService, BlogRepository, EngagementService, ...blogProvider, ...sequelizeInstanceProvider, JwtStrategy],
   exports: [BlogService, BlogRepository],
 })
 export class BlogModule {}

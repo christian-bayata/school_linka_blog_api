@@ -17,10 +17,28 @@ export class Blog extends Model<Blog> {
   creator: number;
 
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: false,
   })
   content: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  likesCount: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  viewsCount: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  commentsCount: number;
 
   /************************************* Relations *******************************************/
   @BelongsTo(() => User)

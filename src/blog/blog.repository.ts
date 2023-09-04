@@ -1,14 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Blog } from 'src/schema/blog.schema';
-import { BLOG_REPOSITORY } from 'src/common/constant';
+import { BLOG_REPOSITORY, ENGAGEMENT_REPOSITORY } from 'src/common/constant';
 import { PropDataInput } from 'src/common/interface';
 import { FetchPostsDto } from './dto/fetch-posts.dto';
-import { AdditionalQuery } from './query/query.interface';
+import { AdditionalQuery } from './interfaces/query.interface';
 import { Op } from 'sequelize';
+import { Engagement } from 'src/schema/engagement.schema';
+import { EngagementType } from './enums/engagement.enum';
 
 @Injectable()
 export class BlogRepository {
-  constructor(@Inject(BLOG_REPOSITORY) private readonly blog: typeof Blog) {}
+  constructor(
+    @Inject(BLOG_REPOSITORY) private readonly blog: typeof Blog,
+    @Inject(ENGAGEMENT_REPOSITORY) private readonly engagement: typeof Engagement,
+  ) {}
 
   /**
    * @Responsibility: Repo to retrieve blog details
@@ -74,5 +79,37 @@ export class BlogRepository {
 
   async updateBlogPost(data: any, where: any): Promise<any> {
     return await this.blog.update(data, { where });
+  }
+
+  /**
+   * @Responsibility: Repo to create engagement
+   *
+   * @param data
+   * @returns { Promise<Partial<Engagement>>}
+   */
+
+  async createEngagement(data: any): Promise<Partial<Engagement>> {
+    return await this.engagement.create(data);
+  }
+
+  /**
+   * @Responsibility: Repo to increment and/or decrement likes and views of a post
+   *
+   * @param post_id
+   * @param flag
+   * @param operation
+   * @returns { Promise<Partial<Engagement>>}
+   */
+
+  async incOrDecLikesViewsAndComments(post_id: number, flag: string, operation?: string): Promise<Partial<Blog> | any> {
+    /* Likes and/or comments count can be increased or decreased */
+    if (flag === EngagementType.LIKE || flag === EngagementType.COMMENT) {
+      return operation === 'add'
+        ? await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } })
+        : await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } });
+    } else {
+      /* You can only increase views count */
+      return await this.blog.increment({ viewsCount: 1 }, { where: { id: +post_id } });
+    }
   }
 }

@@ -31,7 +31,7 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/single')
-  @Roles(Role.RWX_USER, Role.RW_USER, Role.R_user)
+  @Roles(Role.RWX_USER, Role.RW_USER, Role.R_USER)
   async fetchSinglePost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number): Promise<any> {
     return await this.blogService
       .fetchSinglePost(post_id)
@@ -45,7 +45,7 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/all')
-  @Roles(Role.RWX_USER, Role.RW_USER, Role.R_user)
+  @Roles(Role.RWX_USER, Role.RW_USER, Role.R_USER)
   async fetchAllPosts(
     @Req() req: any,
     @Res() res: Response,

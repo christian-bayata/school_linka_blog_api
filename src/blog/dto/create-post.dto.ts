@@ -3,3 +3,9 @@ export class CreatePostDto {
   creator: string;
   readonly content: string;
 }
+
+export class CreateEngagementDto {
+  readonly post_id: number;
+  readonly flag: string;
+  readonly comment?: string;
+}
