@@ -1,5 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, Index } from 'sequelize-typescript';
 import { Role } from 'src/common/enums/role.enum';
+import { Blog } from './blog.schema';
 
 /* Dedicated function for adding index to the Users table */
 export function IndexedTable(indexFields: string[], indexName: string, isUnique: boolean = false) {
@@ -71,4 +72,6 @@ export class User extends Model<User> {
   lastLoggedIn: Date;
 
   /************************************* Relations *******************************************/
+  @HasMany(() => Blog)
+  posts: Blog[];
 }

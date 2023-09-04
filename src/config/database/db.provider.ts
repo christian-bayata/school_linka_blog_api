@@ -3,6 +3,8 @@ import { SEQUELIZE, DEVELOPMENT, STAGING } from 'src/common/constant';
 import { databaseConfig } from './db.config';
 import { User } from 'src/schema/auth.schema';
 import { Authorize } from 'src/schema/authorize.schema';
+import { Blog } from 'src/schema/blog.schema';
+import { Engagement } from 'src/schema/engagement.schema';
 
 export const databaseProviders = [
   {
@@ -21,7 +23,7 @@ export const databaseProviders = [
       }
 
       const sequelize = new Sequelize(config, { dialect: 'postgres' });
-      sequelize.addModels([User, Authorize]);
+      sequelize.addModels([User, Authorize, Blog, Engagement]);
 
       /* Connect to postgres database */
       await sequelize
