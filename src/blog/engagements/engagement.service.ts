@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateEngagementDto } from '../dto/create-post.dto';
+import { CreateEngagementDto, DeleteEngagementDto } from '../dto/create-post.dto';
 import { EngagementType } from '../enums/engagement.enum';
 import { BlogRepository } from '../blog.repository';
 import { EngagementInterface } from '../interfaces/engagement.interface';
@@ -13,6 +13,9 @@ export class EngagementService {
   private readonly successfulViewPost: string = 'Successfully viewed post';
   private readonly successfulCommentOnPost: string = 'Successfully commented on post';
 
+  private readonly successfulUnlikePost: string = 'Successfully un-liked post';
+  private readonly successfulDeleteCommentOnPost: string = 'Successfully deleted comment on post';
+
   /**
    * @Responsibility: dedicated service for creating engagement(s) on a blog post
    *
@@ -23,6 +26,9 @@ export class EngagementService {
   async createEngagement(createEngagementDto: CreateEngagementDto): Promise<any> {
     try {
       const { post_id, flag, comment, engager } = createEngagementDto;
+
+      if (![EngagementType.COMMENT, EngagementType.LIKE, EngagementType.VIEW].includes(flag))
+        throw new HttpException('Invalid flag', HttpStatus.BAD_REQUEST);
 
       const _thePost = await this.blogRepository.findBlogPost({ id: +post_id });
       if (!_thePost) throw new HttpException('Post has been deleted', HttpStatus.NOT_FOUND);
@@ -48,15 +54,15 @@ export class EngagementService {
 
       __promise.push(this.blogRepository.createEngagement(engagementData()));
       flag === EngagementType.LIKE
-        ? __promise.push(this.blogRepository.incOrDecLikesViewsAndComments(post_id, EngagementType.LIKE, 'add'))
+        ? __promise.push(this.blogRepository.incLikesViewsAndComments(post_id, EngagementType.LIKE))
         : flag === EngagementType.VIEW
-        ? __promise.push(this.blogRepository.incOrDecLikesViewsAndComments(post_id, EngagementType.VIEW))
-        : __promise.push(this.blogRepository.incOrDecLikesViewsAndComments(post_id, EngagementType.COMMENT, 'add'));
+        ? __promise.push(this.blogRepository.incLikesViewsAndComments(post_id, EngagementType.VIEW))
+        : __promise.push(this.blogRepository.incLikesViewsAndComments(post_id, EngagementType.COMMENT));
 
       await Promise.all(__promise);
       return { message, data: {} };
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -64,17 +70,43 @@ export class EngagementService {
   /**
    * @Responsibility: dedicated service for deleting engagement(s) on a blog post
    *
-   * @param post
+   * @param deleteEngagementDto
    * @returns {Promise<any>}
    */
 
-  async deleteEngagement(post_id: number): Promise<any> {
+  async deleteEngagement(deleteEngagementDto: DeleteEngagementDto): Promise<any> {
     try {
-      const _thePost = await this.blogRepository.findBlogPost({ id: +post_id });
+      const { engager, post_id, flag } = deleteEngagementDto;
+
+      if (![EngagementType.DELETE_COMMENT, EngagementType.UNLIKE].includes(flag)) throw new HttpException('Invalid flag', HttpStatus.BAD_REQUEST);
+
+      const _thePost = await this.blogRepository.findEngagement({
+        post_id: +post_id,
+        engager,
+        type: flag === EngagementType.UNLIKE ? EngagementType.LIKE : EngagementType.COMMENT,
+      });
       if (!_thePost) throw new HttpException('Post has been deleted', HttpStatus.NOT_FOUND);
 
+      const message = flag === EngagementType.UNLIKE ? this.successfulUnlikePost : this.successfulDeleteCommentOnPost;
+
       /* Comments and likes are the only metrics that can be deleted */
-      //if()
+      const __promise: any = [];
+
+      /* Delete the engagement and decrement the count on the blog table */
+      __promise.push(
+        this.blogRepository.deleteEngagement({
+          post_id: +post_id,
+          engager,
+          type: flag === EngagementType.UNLIKE ? EngagementType.LIKE : EngagementType.COMMENT,
+        }),
+      );
+      flag === EngagementType.UNLIKE
+        ? __promise.push(this.blogRepository.decLikesViewsAndComments(post_id, EngagementType.UNLIKE))
+        : __promise.push(this.blogRepository.decLikesViewsAndComments(post_id, EngagementType.DELETE_COMMENT));
+
+      await Promise.all(__promise);
+
+      return { message, data: {} };
     } catch (error) {}
   }
 }

@@ -15,6 +15,13 @@ export class BlogRepository {
     @Inject(ENGAGEMENT_REPOSITORY) private readonly engagement: typeof Engagement,
   ) {}
 
+  /*****************************************************************************************************************************
+   *
+   **************************************** POSTS' SECTION **********************************
+   *
+   ******************************************************************************************************************************
+   */
+
   /**
    * @Responsibility: Repo to retrieve blog details
    *
@@ -81,6 +88,28 @@ export class BlogRepository {
     return await this.blog.update(data, { where });
   }
 
+  /*****************************************************************************************************************************
+   *
+   **************************************** ENGAGEMENT' SECTION **********************************
+   *
+   ******************************************************************************************************************************
+   */
+
+  /**
+   * @Responsibility: Repo to retrieve engagement details
+   *
+   * @param where
+   * @returns {Promise<Partial<Engagement>>}
+   */
+
+  async findEngagement(where: PropDataInput, attributes?: string[]): Promise<Partial<Engagement>> {
+    console.log('Where ****: ', where);
+    return await this.engagement.findOne({
+      where,
+      attributes,
+    });
+  }
+
   /**
    * @Responsibility: Repo to create engagement
    *
@@ -93,23 +122,40 @@ export class BlogRepository {
   }
 
   /**
-   * @Responsibility: Repo to increment and/or decrement likes and views of a post
+   * @Responsibility: Repo to create engagement
+   *
+   * @param where
+   * @returns {Promise<any> }
+   */
+
+  async deleteEngagement(where: PropDataInput): Promise<any> {
+    return await this.engagement.destroy({ where });
+  }
+
+  /**
+   * @Responsibility: Repo to increment likes, views and comments of a post
    *
    * @param post_id
    * @param flag
-   * @param operation
    * @returns { Promise<Partial<Engagement>>}
    */
 
-  async incOrDecLikesViewsAndComments(post_id: number, flag: string, operation?: string): Promise<Partial<Blog> | any> {
-    /* Likes and/or comments count can be increased or decreased */
-    if (flag === EngagementType.LIKE || flag === EngagementType.COMMENT) {
-      return operation === 'add'
-        ? await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } })
-        : await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } });
-    } else {
-      /* Views count can only be increased */
-      return await this.blog.increment({ viewsCount: 1 }, { where: { id: +post_id } });
-    }
+  async incLikesViewsAndComments(post_id: number, flag: string): Promise<Partial<Blog> | any> {
+    return await this.blog.increment(
+      { [flag === EngagementType.LIKE ? 'likesCount' : flag === EngagementType.COMMENT ? 'commentsCount' : 'viewsCount']: 1 },
+      { where: { id: +post_id } },
+    );
+  }
+
+  /**
+   * @Responsibility: Repo to decrement likes and comments of a post
+   *
+   * @param post_id
+   * @param flag
+   * @returns { Promise<Partial<Engagement>>}
+   */
+
+  async decLikesViewsAndComments(post_id: number, flag: string): Promise<Partial<Blog> | any> {
+    return await this.blog.decrement({ [flag === EngagementType.UNLIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } });
   }
 }

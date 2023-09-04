@@ -1,9 +1,9 @@
-import { Body, Controller, HttpException, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, HttpException, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Role } from 'src/common/enums/role.enum';
 import { Roles } from 'src/guards/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/guards/jwt/jtw.guard';
 import { RoleGuard } from 'src/guards/roles.guard';
-import { CreateEngagementDto } from '../dto/create-post.dto';
+import { CreateEngagementDto, DeleteEngagementDto } from '../dto/create-post.dto';
 import { EngagementService } from './engagement.service';
 import { Response } from 'express';
 
@@ -27,13 +27,14 @@ export class EngagementController {
       });
   }
 
-  @UseGuards(RoleGuard)
-  @Post('/delete')
-  @Roles(Role.RWX_USER, Role.RW_USER, Role.R_USER)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Delete('/delete')
+  @Roles(Role.RWX_USER)
   //@UsePipes(new JoiValidationPipe(signUpSchema))
-  async deleteEngagement(@Req() req: any, @Res() res: Response, @Query() post_id: number): Promise<any> {
+  async deleteEngagement(@Req() req: any, @Res() res: Response, @Body() deleteEngagementDto: DeleteEngagementDto): Promise<any> {
+    deleteEngagementDto.engager = req.user.user_id;
     return await this.engagementService
-      .deleteEngagement(post_id)
+      .deleteEngagement(deleteEngagementDto)
       .then((resp) => {
         res.status(200).json(resp);
       })

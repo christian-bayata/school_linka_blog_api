@@ -6,7 +6,9 @@ export class CreatePostDto {
 
 export class CreateEngagementDto {
   readonly post_id: number;
-  readonly flag: string;
+  readonly flag: string | any;
   readonly comment?: string;
   engager: number;
 }
+
+export class DeleteEngagementDto extends CreateEngagementDto {}
