@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Patch, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Request, Response } from 'express';
 import { BlogService } from './blog.service';
@@ -81,6 +81,20 @@ export class BlogController {
       .editPost(editPostDto)
       .then((resp) => {
         res.status(200).json({ message: 'Successfully edited blog post', data: resp });
+      })
+      .catch((e: any) => {
+        throw new HttpException(e.message, e.status);
+      });
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Delete('/delete')
+  @Roles(Role.RWX_USER)
+  async deletePost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number): Promise<any> {
+    return await this.blogService
+      .deletePost(post_id)
+      .then((resp) => {
+        res.status(200).json({ message: 'Successfully deleted blog post', data: resp });
       })
       .catch((e: any) => {
         throw new HttpException(e.message, e.status);

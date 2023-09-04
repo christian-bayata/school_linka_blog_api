@@ -100,4 +100,23 @@ export class BlogService {
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
+
+  /**
+   * @Responsibility: dedicated service for deleting a blog post
+   * @param post_id
+   * @returns {Promise<any>}
+   */
+
+  async deletePost(post_id: number): Promise<any> {
+    try {
+      const _thePost = await this.blogRepository.findBlogPost({ id: +post_id });
+      if (!_thePost) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+
+      await this.blogRepository.deleteBlogPost({ id: +post_id });
+      return {};
+    } catch (error) {
+      // console.log(error);
+      throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
+    }
+  }
 }

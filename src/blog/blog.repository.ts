@@ -88,6 +88,17 @@ export class BlogRepository {
     return await this.blog.update(data, { where });
   }
 
+  /**
+   * @Responsibility: Repo to create engagement
+   *
+   * @param where
+   * @returns {Promise<any> }
+   */
+
+  async deleteBlogPost(where: PropDataInput): Promise<any> {
+    return await this.blog.destroy({ where });
+  }
+
   /*****************************************************************************************************************************
    *
    **************************************** ENGAGEMENT' SECTION **********************************
