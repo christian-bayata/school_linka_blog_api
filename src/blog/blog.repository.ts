@@ -108,7 +108,7 @@ export class BlogRepository {
         ? await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } })
         : await this.blog.increment({ [flag === EngagementType.LIKE ? 'likesCount' : 'commentsCount']: 1 }, { where: { id: +post_id } });
     } else {
-      /* You can only increase views count */
+      /* Views count can only be increased */
       return await this.blog.increment({ viewsCount: 1 }, { where: { id: +post_id } });
     }
   }

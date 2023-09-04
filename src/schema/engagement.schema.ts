@@ -17,6 +17,12 @@ export class Engagement extends Model<Engagement> {
   post_id: number;
 
   @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  engager: number;
+
+  @Column({
     type: DataType.STRING,
   })
   comment: string;

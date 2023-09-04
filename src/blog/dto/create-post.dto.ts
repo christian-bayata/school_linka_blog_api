@@ -8,4 +8,5 @@ export class CreateEngagementDto {
   readonly post_id: number;
   readonly flag: string;
   readonly comment?: string;
+  engager: number;
 }
