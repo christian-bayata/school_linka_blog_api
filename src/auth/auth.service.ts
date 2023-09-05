@@ -67,7 +67,12 @@ export class AuthService {
           text: verificationText(first_name, verification_link),
         };
       }
-      await this.emailService.emailSender(emailDispatcher());
+      // You can uncomment the email sender in your local environment
+      // Create an account with mailrap email tester and test out the functionality
+      // I've commented it so that it doesnt break the code in the staging environment
+      // since I'm only using the test credentials
+
+      /* await this.emailService.emailSender(emailDispatcher()); */
 
       /* Create a record of the verification */
       function verIdData() {
@@ -80,7 +85,7 @@ export class AuthService {
 
       return __user;
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
