@@ -3,3 +3,7 @@ export class ResetPasswordDto {
   confirmPassword: string;
   code: string;
 }
+export class VerificationDto {
+  ver_id: string;
+  email: string;
+}

@@ -55,6 +55,23 @@ export const loginSchema = Joi.object({
   abortEarly: false,
 });
 
+/*************************************** VERIFICATION SCHEMA VALIDATION  ***************************************/
+export const verificationSchema = Joi.object({
+  ver_id: Joi.string().required().messages({
+    'string.base': 'Verification ID must be a string',
+    'any.required': 'Verification ID is required',
+    'string.empty': 'Verification ID is not allowed to be empty',
+  }),
+  email: Joi.string().required().messages({
+    'string.base': 'Email must be a string',
+    'string.email': 'Invalid Email',
+    'any.required': 'Email is required',
+    'string.empty': 'Email is not allowed to be empty',
+  }),
+}).options({
+  abortEarly: false,
+});
+
 /*************************************** RESET PASSWORD SCHEMA VALIDATION  ***************************************/
 export const resetPasswordSchema = Joi.object({
   password: Joi.string().required().messages({

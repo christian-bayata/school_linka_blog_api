@@ -114,7 +114,6 @@ export class BlogRepository {
    */
 
   async findEngagement(where: PropDataInput, attributes?: string[]): Promise<Partial<Engagement>> {
-    console.log('Where ****: ', where);
     return await this.engagement.findOne({
       where,
       attributes,

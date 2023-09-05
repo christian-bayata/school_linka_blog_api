@@ -6,7 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { VerificationDto } from './dto/verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JoiValidationPipe } from 'src/pipes/validation.pipe';
-import { loginSchema, resetPasswordSchema, signUpSchema } from './auth.validation';
+import { loginSchema, resetPasswordSchema, signUpSchema, verificationSchema } from './auth.validation';
 
 @Controller('linka-blog/auth')
 export class AuthController {
@@ -40,15 +40,10 @@ export class AuthController {
   }
 
   @Post('/verify')
-  async verification(@Res() res: Response, @Query('ver_id') ver_id: string, @Body('email') email: string): Promise<any> {
-    function payload(): VerificationDto {
-      return {
-        ver_id,
-        email,
-      };
-    }
+  @UsePipes(new JoiValidationPipe(verificationSchema))
+  async verification(@Res() res: Response, @Body() verificationDto: VerificationDto): Promise<any> {
     return await this.authService
-      .verification(payload())
+      .verification(verificationDto)
       .then((resp) => {
         res.status(200).json({ message: 'Successfully verified user', data: resp });
       })
