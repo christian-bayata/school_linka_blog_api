@@ -85,7 +85,6 @@ export class AuthService {
 
       return __user;
     } catch (error) {
-      console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -100,6 +99,8 @@ export class AuthService {
   async verification(verificationDto: VerificationDto): Promise<any> {
     try {
       const { email, ver_id } = verificationDto;
+
+      if (!email || !ver_id) throw new HttpException('Provide missing field(s)', HttpStatus.BAD_REQUEST);
 
       const __user = await this.authRepository.findUser({ email }, ['verified']);
       if (!__user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -119,7 +120,6 @@ export class AuthService {
       await this.authRepository.verifyUserDeleteVerId(verData());
       return {};
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -127,7 +127,7 @@ export class AuthService {
   /**
    * @Responsibility: dedicated service for user login
    *
-   * @param createSurveyDto
+   * @param loginDto
    * @returns {Promise<any>}
    */
 
@@ -168,6 +168,8 @@ export class AuthService {
 
   async forgotPassword(email: string): Promise<any> {
     try {
+      if (!email) throw new HttpException('Provide the email', HttpStatus.BAD_REQUEST);
+
       const __user = await this.authRepository.findUser({ email });
       if (!__user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
@@ -182,7 +184,9 @@ export class AuthService {
           text: forgotPasswordText(code),
         };
       }
-      await this.emailService.emailSender(emailDispatcher());
+
+      // Please uncomment the email service, create an account with mailtrap email tester
+      /* await this.emailService.emailSender(emailDispatcher()); */
 
       /* Create a record of the password code */
       function forgotPasswordData() {
@@ -192,7 +196,6 @@ export class AuthService {
       await this.authRepository.createVerId(forgotPasswordData());
       return {};
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -241,7 +244,6 @@ export class AuthService {
 
       return {};
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
