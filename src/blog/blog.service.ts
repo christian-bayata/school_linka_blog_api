@@ -22,12 +22,11 @@ export class BlogService {
       const { title, creator, content } = createPostDto;
 
       function postData() {
-        return { title, creator, status, content };
+        return { title, creator, content };
       }
 
       return await this.blogRepository.createBlogPost(postData());
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -46,7 +45,6 @@ export class BlogService {
 
       return _thePost;
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -67,7 +65,6 @@ export class BlogService {
       const { posts, count } = await this.blogRepository.findAllPosts(allPostsData());
       return { posts, count };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -96,7 +93,6 @@ export class BlogService {
       await this.blogRepository.updateBlogPost(editData(), { id: +post_id });
       return {};
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -115,7 +111,6 @@ export class BlogService {
       await this.blogRepository.deleteBlogPost({ id: +post_id });
       return {};
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }

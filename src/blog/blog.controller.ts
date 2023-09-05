@@ -24,7 +24,7 @@ export class BlogController {
     return await this.blogService
       .createPost(createPostDto)
       .then((resp) => {
-        res.status(201).json({ message: 'Successfully drafted blog post', data: resp });
+        res.status(201).json({ message: 'Successfully created blog post', data: resp });
       })
       .catch((e: any) => {
         throw new HttpException(e.message, e.status);
@@ -76,8 +76,7 @@ export class BlogController {
   @Patch('/edit')
   @Roles(Role.RWX_USER)
   @UsePipes(new JoiValidationPipe(editPostSchema))
-  async editPost(@Req() req: any, @Res() res: Response, @Query('post_id') post_id: number, @Body() editPostDto: EditPostDto): Promise<any> {
-    editPostDto.post_id = post_id;
+  async editPost(@Req() req: any, @Res() res: Response, @Body() editPostDto: EditPostDto): Promise<any> {
     editPostDto.creator = req.user.user_id;
 
     return await this.blogService

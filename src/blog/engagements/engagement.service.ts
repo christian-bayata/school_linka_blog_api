@@ -62,7 +62,6 @@ export class EngagementService {
       await Promise.all(__promise);
       return { message, data: {} };
     } catch (error) {
-      // console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }

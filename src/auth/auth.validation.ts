@@ -55,30 +55,6 @@ export const loginSchema = Joi.object({
   abortEarly: false,
 });
 
-/***************************************  VERIFICATION SCHEMA VALIDATION  ***************************************/
-export const verificationSchema = Joi.object({
-  email: Joi.string().required().messages({
-    'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
-    'any.required': 'Email is required',
-    'string.empty': 'Email is not allowed to be empty',
-  }),
-}).options({
-  abortEarly: false,
-});
-
-/*************************************** FORGOT PASSWORD SCHEMA VALIDATION  ***************************************/
-export const forgotPasswordSchema = Joi.object({
-  email: Joi.string().required().messages({
-    'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
-    'any.required': 'Email is required',
-    'string.empty': 'Email is not allowed to be empty',
-  }),
-}).options({
-  abortEarly: false,
-});
-
 /*************************************** RESET PASSWORD SCHEMA VALIDATION  ***************************************/
 export const resetPasswordSchema = Joi.object({
   password: Joi.string().required().messages({
@@ -88,10 +64,10 @@ export const resetPasswordSchema = Joi.object({
     'string.empty': 'Password is not allowed to be empty',
   }),
   confirmPassword: Joi.string().required().messages({
-    'string.base': 'Password must be a string',
-    'string.min': 'Password requires at least 3 characters',
-    'any.required': 'Password is required',
-    'string.empty': 'Password is not allowed to be empty',
+    'string.base': 'Confirm Password must be a string',
+    'string.min': 'Confirm Password requires at least 3 characters',
+    'any.required': 'Confirm Password is required',
+    'string.empty': 'Confirm Password is not allowed to be empty',
   }),
   code: Joi.string().required().messages({
     'string.base': 'Code must be a string',

@@ -15,7 +15,7 @@ export const createPostSchema = Joi.object({
     'any.required': 'Title is required',
     'string.empty': 'Title is not allowed to be empty',
   }),
-  Content: Joi.string().min(3).required().messages({
+  content: Joi.string().min(3).required().messages({
     'string.base': 'Content must be a string',
     'string.min': 'Content requires at least 3 characters',
     'any.required': 'Content is required',
@@ -33,11 +33,16 @@ export const editPostSchema = Joi.object({
     'any.required': 'Title is required',
     'string.empty': 'Title is not allowed to be empty',
   }),
-  Content: Joi.string().min(3).required().messages({
+  content: Joi.string().min(3).required().messages({
     'string.base': 'Content must be a string',
     'string.min': 'Content requires at least 3 characters',
     'any.required': 'Content is required',
     'string.empty': 'Content is not allowed to be empty',
+  }),
+  post_id: Joi.number().required().messages({
+    'number.base': 'Post ID must be a number',
+    'any.required': 'Post ID is required',
+    'number.empty': 'Post ID is not allowed to be empty',
   }),
 }).options({
   abortEarly: false,
@@ -57,9 +62,8 @@ export const createEngagementSchema = Joi.object({
     'string.empty': 'Flag is not allowed to be empty',
   }),
 
-  comment: Joi.string().required().messages({
+  comment: Joi.string().optional().messages({
     'string.base': 'Comment must be a string',
-    'any.required': 'Comment is required',
     'string.empty': 'Comment is not allowed to be empty',
   }),
 }).options({
