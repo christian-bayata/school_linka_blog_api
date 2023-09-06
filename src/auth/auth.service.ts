@@ -85,7 +85,6 @@ export class AuthService {
 
       return { ...__user, ver_id: __ver_id };
     } catch (error) {
-      console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -246,10 +245,4 @@ export class AuthService {
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
-  /*****************************************************************************************************************************
-   *
-   ****************************************PRIVATE FUNCTIONS/METHODS **********************************
-   *
-   ******************************************************************************************************************************
-   */
 }
