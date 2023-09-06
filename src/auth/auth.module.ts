@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DatabaseModule } from 'src/config/database/db.module';
+import { DatabaseModule } from '../config/database/db.module';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 import { AuthController } from './auth.controller';
 import { authProvider, sequelizeInstanceProvider } from './auth.provider';
 import { AuthUtility } from './auth.utility';
 import { JwtModule } from '@nestjs/jwt';
-import { EmailModule } from 'src/email/email.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [

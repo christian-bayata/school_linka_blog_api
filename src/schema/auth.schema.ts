@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, Index } from 'sequelize-typescript';
-import { Role } from 'src/common/enums/role.enum';
+import { Role } from '../common/enums/role.enum';
 import { Blog } from './blog.schema';
 
 /* Dedicated function for adding index to the Users table */

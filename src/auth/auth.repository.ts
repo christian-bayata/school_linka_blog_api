@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PropDataInput } from 'src/common/interface';
 import { User } from 'src/schema/auth.schema';
-import { USER_REPOSITORY, AUTHORIZE_REPOSITORY, SEQUELIZE } from 'src/common/constant';
+import { USER_REPOSITORY, AUTHORIZE_REPOSITORY, SEQUELIZE } from '../common/constant';
 import { Authorize } from 'src/schema/authorize.schema';
 import { Sequelize } from 'sequelize-typescript';
 

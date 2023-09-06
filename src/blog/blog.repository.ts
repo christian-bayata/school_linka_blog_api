@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Blog } from 'src/schema/blog.schema';
-import { BLOG_REPOSITORY, ENGAGEMENT_REPOSITORY } from 'src/common/constant';
-import { PropDataInput } from 'src/common/interface';
+import { BLOG_REPOSITORY, ENGAGEMENT_REPOSITORY } from '../common/constant';
+import { PropDataInput } from '../common/interface';
 import { FetchPostsDto } from './dto/fetch-posts.dto';
 import { AdditionalQuery } from './interfaces/query.interface';
 import { Op } from 'sequelize';
-import { Engagement } from 'src/schema/engagement.schema';
+import { Engagement } from '../schema/engagement.schema';
 import { EngagementType } from './enums/engagement.enum';
 
 @Injectable()

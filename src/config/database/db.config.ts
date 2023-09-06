@@ -18,4 +18,11 @@ export const databaseConfig: IDatabaseConfig = {
     dbHost: process.env.STAGING_DB_HOST,
     dbPort: process.env.DB_PORT,
   },
+  test: {
+    dbUser: process.env.TEST_DB_USERNAME,
+    dbPass: process.env.TEST_DB_PASSWORD,
+    dbName: process.env.TEST_DB_NAME,
+    dbHost: process.env.TEST_DB_HOST,
+    dbPort: process.env.DB_PORT,
+  },
 };

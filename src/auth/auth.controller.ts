@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { VerificationDto } from './dto/verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { JoiValidationPipe } from 'src/pipes/validation.pipe';
+import { JoiValidationPipe } from '../pipes/validation.pipe';
 import { loginSchema, resetPasswordSchema, signUpSchema, verificationSchema } from './auth.validation';
 
 @Controller('linka-blog/auth')

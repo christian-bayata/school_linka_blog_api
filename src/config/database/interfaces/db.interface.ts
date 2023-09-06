@@ -11,4 +11,5 @@ export interface IDatabaseConfigAttributes {
 export interface IDatabaseConfig {
   development: IDatabaseConfigAttributes;
   staging: IDatabaseConfigAttributes;
+  test: IDatabaseConfigAttributes;
 }

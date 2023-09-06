@@ -7,12 +7,12 @@ import { LoginDto } from './dto/login.dto';
 import { AuthUtility } from './auth.utility';
 import { JwtService } from '@nestjs/jwt';
 import { VerificationDto } from './dto/verification.dto';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 import { EmailData } from 'src/email/email.interface';
-import { verificationText } from 'src/email/templates/verification-text.template';
+import { verificationText } from '../email/templates/verification-text.template';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { forgotPasswordText } from 'src/email/templates/forgot-password-text.template';
+import { forgotPasswordText } from '../email/templates/forgot-password-text.template';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
@@ -100,8 +100,6 @@ export class AuthService {
     try {
       const { email, ver_id } = verificationDto;
 
-      if (!email || !ver_id) throw new HttpException('Provide missing field(s)', HttpStatus.BAD_REQUEST);
-
       const __user = await this.authRepository.findUser({ email }, ['verified']);
       if (!__user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
@@ -135,7 +133,7 @@ export class AuthService {
     try {
       let { email, password } = loginDto;
 
-      const theUser = await this.authUtility.getPlainData(await this.authRepository.findUser({ email }, ['id', 'email', 'password', 'role']));
+      const theUser = await this.authRepository.findUser({ email }, ['id', 'email', 'password', 'role']);
       if (!theUser) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
       /* validate user password with bcrypt */
@@ -203,7 +201,7 @@ export class AuthService {
   /**
    * @Responsibility: dedicated service for reset password
    *
-   * @param email
+   * @param resetPasswordDto
    * @returns {Promise<any>}
    */
 
