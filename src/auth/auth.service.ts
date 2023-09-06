@@ -83,8 +83,9 @@ export class AuthService {
       }
       await this.authRepository.createVerId(verIdData());
 
-      return __user;
+      return { ...__user, ver_id: __ver_id };
     } catch (error) {
+      console.log(error);
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
   }
@@ -194,7 +195,7 @@ export class AuthService {
       }
 
       await this.authRepository.createVerId(forgotPasswordData());
-      return {};
+      return forgotPasswordData();
     } catch (error) {
       throw new HttpException(error?.response ? error.response : this.ISE, error?.status);
     }
@@ -209,9 +210,9 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<any> {
     try {
-      let { password, confirmPassword, code } = resetPasswordDto;
+      let { password, confirmPassword, email, code } = resetPasswordDto;
 
-      const theCode = await this.authRepository.findAuthorize({ code }, ['code', 'email', 'createdAt']);
+      const theCode = await this.authRepository.findAuthorize({ code }, ['code', 'createdAt']);
       if (!theCode) throw new HttpException('Invalid code', HttpStatus.BAD_REQUEST);
 
       /* Delete code if the expiration time is reached */
@@ -228,10 +229,8 @@ export class AuthService {
       /* Confirm if passwords match */
       if (password !== confirmPassword) throw new HttpException('Passwords do not match', HttpStatus.BAD_REQUEST);
 
-      const __user = await this.authRepository.findUser({ email: theCode.email }, ['id', 'password', 'role']);
-      password = hashSync(password, genSaltSync());
-
-      await Promise.all([__user.update({ password }), await this.authRepository.deleteAuthorize({ code })]);
+      const __user = await this.authRepository.findUser({ email }, ['id', 'password', 'role']);
+      await __user.update({ password: hashSync(password, genSaltSync()) });
 
       /* Generate another jwt token for user */
       function jwtPayload() {

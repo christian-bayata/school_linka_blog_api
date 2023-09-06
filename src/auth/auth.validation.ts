@@ -91,6 +91,12 @@ export const resetPasswordSchema = Joi.object({
     'any.required': 'Code is required',
     'string.empty': 'Code is not allowed to be empty',
   }),
+  email: Joi.string().required().messages({
+    'string.base': 'Email must be a string',
+    'string.email': 'Invalid Email',
+    'any.required': 'Email is required',
+    'string.empty': 'Email is not allowed to be empty',
+  }),
 }).options({
   abortEarly: false,
 });
