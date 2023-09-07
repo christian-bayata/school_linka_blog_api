@@ -9,15 +9,10 @@ import { INestApplication } from '@nestjs/common';
 import { AuthModule } from './auth.module';
 import { AppModule } from '../app.module';
 import { v4 as uuidv4 } from 'uuid';
-import { Sequelize } from 'sequelize-typescript';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { Authorize } from '../schema/authorize.schema';
 
 let BASE_URL = '/linka-blog/auth';
-
-export interface DatabaseProvider {
-  getSequelizeInstance(): Promise<Sequelize>;
-}
 
 describe('Auth Controller', () => {
   let app: INestApplication;
