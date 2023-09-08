@@ -1,8 +1,8 @@
 {
   "name": "school-linka-blog-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A blog that that enables uers to create, retrieve, edit and delete posts",
+  "author": "Edomaruse, Frank",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
