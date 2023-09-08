@@ -1,4 +1,4 @@
-# School Linka Blog API
+<img width="1680" alt="Screenshot 2023-09-08 at 15 51 52" src="https://github.com/christian-bayata/school_linka_blog_api/assets/80787295/833710cd-795a-4979-932d-6a942548c99e"><img width="680" alt="Screenshot 2023-09-08 at 15 40 48" src="https://github.com/christian-bayata/school_linka_blog_api/assets/80787295/b1d1e672-9912-4a62-aedc-36043edf45ab"># School Linka Blog API
 
 > A secure blog that that enables uers to create, retrieve, edit and delete posts
 
@@ -62,6 +62,11 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Test coverage reports
+<img width="1680" alt="Screenshot 2023-09-08 at 15 51 52" src="https://github.com/christian-bayata/school_linka_blog_api/assets/80787295/c9078bcb-2974-4c1e-ba09-2e5ac1d76f9c">
+
+<img width="680" alt="Screenshot 2023-09-08 at 15 40 48" src="https://github.com/christian-bayata/school_linka_blog_api/assets/80787295/087df8eb-9573-4c6c-a32d-6ad0cca47ae1">
 
 ## Support
 
