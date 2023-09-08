@@ -7,7 +7,7 @@ import { CreateEngagementDto, DeleteEngagementDto } from '../dto/create-post.dto
 import { EngagementService } from './engagement.service';
 import { Response } from 'express';
 import { JoiValidationPipe } from '../../pipes/validation.pipe';
-import { createEngagementSchema } from '../blog.validation';
+import { createEngagementSchema, deleteEngagementSchema } from '../blog.validation';
 
 @Controller('linka-blog/engagement')
 export class EngagementController {
@@ -32,11 +32,13 @@ export class EngagementController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/delete')
   @Roles(Role.RWX_USER)
+  @UsePipes(new JoiValidationPipe(deleteEngagementSchema))
   async deleteEngagement(@Req() req: any, @Res() res: Response, @Body() deleteEngagementDto: DeleteEngagementDto): Promise<any> {
     deleteEngagementDto.engager = req.user.user_id;
     return await this.engagementService
       .deleteEngagement(deleteEngagementDto)
       .then((resp) => {
+        console.log(resp);
         res.status(200).json(resp);
       })
       .catch((e: any) => {

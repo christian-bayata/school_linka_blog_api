@@ -5,26 +5,21 @@ import { Blog } from '../schema/blog.schema';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../app.module';
 import * as jwt from 'jsonwebtoken';
-import { Sequelize } from 'sequelize-typescript';
-import { genSaltSync, hashSync } from 'bcrypt';
 import { Authorize } from '../schema/authorize.schema';
 import { BlogController } from './blog.controller';
-import { BlogService } from './blog.service';
+import { EngagementController } from './engagements/engagement.controller';
 import { BlogRepository } from './blog.repository';
 import { BlogModule } from './blog.module';
 import { Role } from '../common/enums/role.enum';
-import { ConfigService } from '@nestjs/config';
-import { Op } from 'sequelize';
+import { Engagement } from '../schema/engagement.schema';
+import { DatabaseModule } from '../config/database/db.module';
 
-let BASE_URL = '/linka-blog/post';
+let BASE_URL = '/linka-blog';
 let token: string;
 
 describe('Blog Controller', () => {
   let app: INestApplication;
-  let module: TestingModule;
-  let blogService: BlogService;
   let blogRepository: BlogRepository;
-  let configService: ConfigService;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -42,12 +37,19 @@ describe('Blog Controller', () => {
 
     await User.destroy({ where: {}, truncate: true });
     await Blog.destroy({ where: {}, truncate: true });
-    await Authorize.destroy({ where: {}, truncate: true });
+    await Engagement.destroy({ where: {}, truncate: true });
   });
 
   afterAll(async () => {
     await app.close();
   });
+
+  /*****************************************************************************************************************************
+   *
+   **************************************** POST BLOGS SECTION **********************************
+   *
+   ******************************************************************************************************************************
+   */
 
   /*************************************** Create Blog Post  ***************************************/
   describe('Create Blog Post', () => {
@@ -58,7 +60,7 @@ describe('Blog Controller', () => {
           content: 'my_good_content',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/string/i);
     });
@@ -69,7 +71,7 @@ describe('Blog Controller', () => {
           content: 'my_good_content',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/required/i);
     });
@@ -81,7 +83,7 @@ describe('Blog Controller', () => {
           content: 'my_good_content',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/empty/i);
     });
@@ -93,7 +95,7 @@ describe('Blog Controller', () => {
           content: 12345678,
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/string/i);
     });
@@ -104,7 +106,7 @@ describe('Blog Controller', () => {
           title: 'my_title',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/required/i);
     });
@@ -116,7 +118,7 @@ describe('Blog Controller', () => {
           content: '',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/empty/i);
     });
@@ -128,7 +130,7 @@ describe('Blog Controller', () => {
           content: 'my_content',
         };
       }
-      const response = await request(app.getHttpServer()).post(`${BASE_URL}/create`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).post(`${BASE_URL}/post/create`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(201);
       expect(response.body.message).toMatch(/successful/i);
     });
@@ -137,7 +139,7 @@ describe('Blog Controller', () => {
   /*************************************** Fetch Single Blog Post  ***************************************/
   describe('Fetch Single Blog Post', () => {
     it('should fail if blog id is not found', async () => {
-      const response = await request(app.getHttpServer()).get(`${BASE_URL}/single?post_id=100`).set('Authorization', `Bearer ${token}`).send();
+      const response = await request(app.getHttpServer()).get(`${BASE_URL}/post/single?post_id=100`).set('Authorization', `Bearer ${token}`).send();
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch(/not found/i);
     });
@@ -145,7 +147,7 @@ describe('Blog Controller', () => {
     it('should pass if all requirements are met', async () => {
       const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
       const response = await request(app.getHttpServer())
-        .get(`${BASE_URL}/single?post_id=${__post.id}`)
+        .get(`${BASE_URL}/post/single?post_id=${__post.id}`)
         .set('Authorization', `Bearer ${token}`)
         .send();
       expect(response.status).toBe(200);
@@ -156,7 +158,7 @@ describe('Blog Controller', () => {
   /*************************************** Fetch Single Blog Post  ***************************************/
   describe('Fetch Single Blog Post', () => {
     it('should fail if blog id is not found', async () => {
-      const response = await request(app.getHttpServer()).get(`${BASE_URL}/single?post_id=100`).set('Authorization', `Bearer ${token}`).send();
+      const response = await request(app.getHttpServer()).get(`${BASE_URL}/post/single?post_id=100`).set('Authorization', `Bearer ${token}`).send();
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch(/not found/i);
     });
@@ -164,7 +166,7 @@ describe('Blog Controller', () => {
     it('should pass if all requirements are met', async () => {
       const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
       const response = await request(app.getHttpServer())
-        .get(`${BASE_URL}/single?post_id=${__post.id}`)
+        .get(`${BASE_URL}/post/single?post_id=${__post.id}`)
         .set('Authorization', `Bearer ${token}`)
         .send();
       expect(response.status).toBe(200);
@@ -182,21 +184,24 @@ describe('Blog Controller', () => {
       ];
       bulkData.map(async (data: any) => await Blog.create(data));
 
-      const response = await request(app.getHttpServer()).get(`${BASE_URL}/all`).set('Authorization', `Bearer ${token}`).send();
+      const response = await request(app.getHttpServer()).get(`${BASE_URL}/post/all`).set('Authorization', `Bearer ${token}`).send();
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch(/successful/i);
       expect(response.body.data.posts.length).toBe(6);
     });
 
     it('should return post with pagination', async () => {
-      const response = await request(app.getHttpServer()).get(`${BASE_URL}/all?page=1&limit=3`).set('Authorization', `Bearer ${token}`).send();
+      const response = await request(app.getHttpServer()).get(`${BASE_URL}/post/all?page=1&limit=3`).set('Authorization', `Bearer ${token}`).send();
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch(/successful/i);
       expect(response.body.data.posts.length).toBe(3);
     });
 
     it('should return post after search', async () => {
-      const response = await request(app.getHttpServer()).get(`${BASE_URL}/all?search=my_title_1`).set('Authorization', `Bearer ${token}`).send();
+      const response = await request(app.getHttpServer())
+        .get(`${BASE_URL}/post/all?search=my_title_1`)
+        .set('Authorization', `Bearer ${token}`)
+        .send();
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch(/successful/i);
       expect(response.body.data.posts.length).toBe(1);
@@ -213,7 +218,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/string/i);
     });
@@ -225,7 +230,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/required/i);
     });
@@ -238,7 +243,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/empty/i);
     });
@@ -251,7 +256,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/string/i);
     });
@@ -263,7 +268,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/required/i);
     });
@@ -276,7 +281,7 @@ describe('Blog Controller', () => {
           post_id: 2,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/empty/i);
     });
@@ -289,7 +294,7 @@ describe('Blog Controller', () => {
           post_id: 'abcf',
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(/number/i);
     });
@@ -302,7 +307,7 @@ describe('Blog Controller', () => {
           post_id: 120,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch(/not found/i);
     });
@@ -316,7 +321,7 @@ describe('Blog Controller', () => {
           post_id: post.id,
         };
       }
-      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/edit`).set('Authorization', `Bearer ${token}`).send(payload());
+      const response = await request(app.getHttpServer()).patch(`${BASE_URL}/post/edit`).set('Authorization', `Bearer ${token}`).send(payload());
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch(/successful/i);
     });
@@ -325,7 +330,10 @@ describe('Blog Controller', () => {
   /*************************************** Delete Blog Post  ***************************************/
   describe(' Delete Blog Post', () => {
     it('should fail if post id is not found', async () => {
-      const response = await request(app.getHttpServer()).delete(`${BASE_URL}/delete?post_id=120`).set('Authorization', `Bearer ${token}`).send({});
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/post/delete?post_id=120`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch(/not found/i);
     });
@@ -333,11 +341,264 @@ describe('Blog Controller', () => {
     it('should pass if all requiremnets are met', async () => {
       const post = await Blog.create({ title: 'my_title_1.1', content: 'my_content_1', creator: 10 });
       const response = await request(app.getHttpServer())
-        .delete(`${BASE_URL}/delete?post_id=${post.id}`)
+        .delete(`${BASE_URL}/post/delete?post_id=${post.id}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch(/successful/i);
+    });
+  });
+
+  /*****************************************************************************************************************************
+   *
+   **************************************** POST ENGAGEMENTS SECTION **********************************
+   *
+   ******************************************************************************************************************************
+   */
+
+  /*************************************** Create Engagement on Post  ***************************************/
+  describe('Create Engagement on Post', () => {
+    it('should fail if flag is not a string', async () => {
+      function payload() {
+        return {
+          flag: 12346,
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/string/i);
+    });
+
+    it('should fail if flag is not provided', async () => {
+      function payload() {
+        return {
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/required/i);
+    });
+
+    it('should fail if flag is empty', async () => {
+      function payload() {
+        return {
+          flag: 'something_else',
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/invalid flag/i);
+    });
+
+    it('should fail if flag is not view, like or comment', async () => {
+      function payload() {
+        return {
+          flag: '',
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/empty/i);
+    });
+
+    it('should pass for view flag', async () => {
+      const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
+
+      function payload() {
+        return {
+          flag: 'view',
+          post_id: __post.id,
+        };
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(201);
+      expect(response.body.message).toMatch(/viewed post/i);
+    });
+
+    it('should pass for like flag', async () => {
+      const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
+
+      function payload() {
+        return {
+          flag: 'like',
+          post_id: __post.id,
+        };
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(201);
+      expect(response.body.message).toMatch(/liked post/i);
+    });
+
+    it('should pass for comment flag', async () => {
+      const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
+
+      function payload() {
+        return {
+          flag: 'comment',
+          post_id: __post.id,
+          comment: 'some_wonderful_comment',
+        };
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`${BASE_URL}/engagement/create`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(201);
+      expect(response.body.message).toMatch(/commented/i);
+    });
+  });
+
+  /*************************************** Delete Engagement on Post  ***************************************/
+  describe('Delete Engagement on Post', () => {
+    it('should fail if flag is not a string', async () => {
+      function payload() {
+        return {
+          flag: 12346,
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/string/i);
+    });
+
+    it('should fail if flag is not present', async () => {
+      function payload() {
+        return {
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/required/i);
+    });
+
+    it('should fail if flag is empty', async () => {
+      function payload() {
+        return {
+          flag: '',
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/empty/i);
+    });
+
+    it('should fail if post id is not provided', async () => {
+      function payload() {
+        return {
+          flag: 'unlike',
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/required/i);
+    });
+
+    it('should fail if post id does not exit', async () => {
+      function payload() {
+        return {
+          flag: 'unlike',
+          post_id: 200,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch(/deleted/i);
+    });
+
+    it('should fail if flag is not delete_comment or unlike', async () => {
+      function payload() {
+        return {
+          flag: 'some_flag_like_that',
+          post_id: 2,
+        };
+      }
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(/invalid/i);
+    });
+
+    it('should pass for unlike flag', async () => {
+      const __post = await Blog.create({ title: 'my_title', content: 'my_content', creator: 1 });
+      const __eng = await Engagement.create({ post_id: __post?.id, type: 'like', engager: 1 });
+
+      function payload() {
+        return {
+          flag: 'unlike',
+          post_id: __eng?.post_id,
+        };
+      }
+
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch(/un-liked post/i);
+    });
+
+    it('should pass for delete comment flag', async () => {
+      const __post = await Blog.create({ title: 'my_second_title', content: 'my_second_content', creator: 1 });
+      const __eng = await Engagement.create({ post_id: __post?.id, type: 'comment', engager: 1, comment: 'some_comment' });
+
+      function payload() {
+        return {
+          flag: 'delete_comment',
+          post_id: __eng?.post_id,
+        };
+      }
+
+      const response = await request(app.getHttpServer())
+        .delete(`${BASE_URL}/engagement/delete`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(payload());
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch(/deleted/i);
     });
   });
 });

@@ -3,7 +3,6 @@ import * as request from 'supertest';
 import { User } from '../schema/auth.schema';
 import { Blog } from '../schema/blog.schema';
 import { AuthRepository } from './auth.repository';
-import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { INestApplication } from '@nestjs/common';
 import { AuthModule } from './auth.module';
@@ -16,9 +15,6 @@ let BASE_URL = '/linka-blog/auth';
 
 describe('Auth Controller', () => {
   let app: INestApplication;
-  let module: TestingModule;
-  let controller: AuthController;
-  let authService: AuthService;
   let authRepository: AuthRepository;
 
   beforeAll(async () => {
