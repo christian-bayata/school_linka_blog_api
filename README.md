@@ -66,6 +66,36 @@ $ npm run test:cov
 
 <img width="680" alt="Screenshot 2023-09-08 at 15 40 48" src="https://github.com/christian-bayata/school_linka_blog_api/assets/80787295/087df8eb-9573-4c6c-a32d-6ad0cca47ae1">
 
+Note:
+Before running on any environment you have to set the **environment variables**:
+
+```dotenv
+PORT=
+NODE_ENV=
+JWT_SECRET=
+BASE_URL=
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+
+# Local Database
+DB_USERNAME=
+DB_PASSWORD=
+DB_HOST=
+DB_NAME=
+DB_DRIVER=
+DB_PORT=
+DB_SCHEMA=
+
+TEST_DB_USERNAME=
+TEST_DB_PASSWORD=
+TEST_DB_NAME=
+TEST_DB_HOST=
+TEST_DB_DIALECT=
+```
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
