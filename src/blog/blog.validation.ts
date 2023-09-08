@@ -69,3 +69,20 @@ export const createEngagementSchema = Joi.object({
 }).options({
   abortEarly: false,
 });
+
+/***************************************  DELETE-ENGAGEMENT SCHEMA VALIDATION  ***************************************/
+export const deleteEngagementSchema = Joi.object({
+  post_id: Joi.number().required().messages({
+    'number.base': 'Post ID must be a number',
+    'any.required': 'Post ID is required',
+    'number.empty': 'Post ID is not allowed to be empty',
+  }),
+
+  flag: Joi.string().required().messages({
+    'string.base': 'Flag must be a string',
+    'any.required': 'Flag is required',
+    'string.empty': 'Flag is not allowed to be empty',
+  }),
+}).options({
+  abortEarly: false,
+});

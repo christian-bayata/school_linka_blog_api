@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
-import { BLOG_REPOSITORY, ENGAGEMENT_REPOSITORY, SEQUELIZE_INSTANCE } from 'src/common/constant';
-import { Blog } from 'src/schema/blog.schema';
-import { Engagement } from 'src/schema/engagement.schema';
+import { BLOG_REPOSITORY, ENGAGEMENT_REPOSITORY, SEQUELIZE_INSTANCE } from '../common/constant';
+import { Blog } from '../schema/blog.schema';
+import { Engagement } from '../schema/engagement.schema';
 
 /* This provider will be used to communicate with the database */
 export const blogProvider = [

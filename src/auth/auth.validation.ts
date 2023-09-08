@@ -23,13 +23,12 @@ export const signUpSchema = Joi.object({
   }),
   email: Joi.string().required().messages({
     'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
     'any.required': 'Email is required',
     'string.empty': 'Email is not allowed to be empty',
   }),
-  password: Joi.string().required().messages({
+  password: Joi.string().min(3).required().messages({
     'string.base': 'Password must be a string',
-    'string.min': 'Last name requires at least 3 characters',
+    'string.min': 'Password requires at least 3 characters',
     'any.required': 'Password is required',
     'string.empty': 'Password is not allowed to be empty',
   }),
@@ -41,7 +40,6 @@ export const signUpSchema = Joi.object({
 export const loginSchema = Joi.object({
   email: Joi.string().required().messages({
     'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
     'any.required': 'Email is required',
     'string.empty': 'Email is not allowed to be empty',
   }),
@@ -64,7 +62,6 @@ export const verificationSchema = Joi.object({
   }),
   email: Joi.string().required().messages({
     'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
     'any.required': 'Email is required',
     'string.empty': 'Email is not allowed to be empty',
   }),
@@ -93,7 +90,6 @@ export const resetPasswordSchema = Joi.object({
   }),
   email: Joi.string().required().messages({
     'string.base': 'Email must be a string',
-    'string.email': 'Invalid Email',
     'any.required': 'Email is required',
     'string.empty': 'Email is not allowed to be empty',
   }),

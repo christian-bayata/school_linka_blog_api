@@ -2,13 +2,13 @@ import { Body, Controller, Delete, Get, HttpException, Patch, Post, Query, Req, 
 import { CreatePostDto } from './dto/create-post.dto';
 import { Request, Response } from 'express';
 import { BlogService } from './blog.service';
-import { JwtAuthGuard } from 'src/guards/jwt/jtw.guard';
-import { RoleGuard } from 'src/guards/roles.guard';
-import { Role } from 'src/common/enums/role.enum';
-import { Roles } from 'src/guards/decorators/roles.decorator';
+import { JwtAuthGuard } from '../guards/jwt/jtw.guard';
+import { RoleGuard } from '../guards/roles.guard';
+import { Role } from '../common/enums/role.enum';
+import { Roles } from '../guards/decorators/roles.decorator';
 import { FetchPostsDto } from './dto/fetch-posts.dto';
 import { EditPostDto } from './dto/edit-post.dto';
-import { JoiValidationPipe } from 'src/pipes/validation.pipe';
+import { JoiValidationPipe } from '../pipes/validation.pipe';
 import { createPostSchema, editPostSchema } from './blog.validation';
 
 @Controller('linka-blog/post')

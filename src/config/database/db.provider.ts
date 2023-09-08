@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize-typescript';
-import { SEQUELIZE, DEVELOPMENT, STAGING } from 'src/common/constant';
+import { SEQUELIZE, DEVELOPMENT, STAGING } from '../../common/constant';
 import { databaseConfig } from './db.config';
-import { User } from 'src/schema/auth.schema';
-import { Authorize } from 'src/schema/authorize.schema';
-import { Blog } from 'src/schema/blog.schema';
-import { Engagement } from 'src/schema/engagement.schema';
+import { User } from '../../schema/auth.schema';
+import { Authorize } from '../../schema/authorize.schema';
+import { Blog } from '../../schema/blog.schema';
+import { Engagement } from '../../schema/engagement.schema';
 
 export const databaseProviders = [
   {
